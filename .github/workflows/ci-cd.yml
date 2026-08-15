@@ -3,17 +3,15 @@ name: CI/CD Pipeline - Spring Boot ECom
 
 # "on:" defines when this workflow is triggered
 on:
-  # Trigger when code is pushed directly to these branches
   push:
     branches: [ main, master ]
-  # Trigger when a Pull Request is created/updated to these branches
   pull_request:
     branches: [ main, master ]
 
 jobs:
   # ============================================================================
   # JOB 1: BUILD AND TEST
-  # This job compiles the Java code, runs Spring Boot tests, and creates a deployable package
+  # Compiles Java code, runs Spring Boot unit & integration tests, packages JAR
   # ============================================================================
   build-and-test:
     name: Build & Run Unit/Integration Tests (Spring Boot)
@@ -50,13 +48,12 @@ jobs:
 
   # ============================================================================
   # JOB 2: DEPLOY TO AWS
-  # This job packages the app into Docker, pushes to AWS, and deploys it
-  # Only runs AFTER build-and-test succeeds
+  # Runs only if AWS credentials (AWS_ACCESS_KEY_ID) are configured in GitHub Secrets
   # ============================================================================
   deploy-to-aws:
     name: Deploy to AWS Free Tier (App Runner / ECS)
     needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AWS_ACCESS_KEY_ID != ''
     runs-on: ubuntu-latest
 
     steps:
