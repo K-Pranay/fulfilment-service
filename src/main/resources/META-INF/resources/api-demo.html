@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fulfillment & Warehouse Service - Interactive API Lifecycle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --panel-bg: #1e293b;
+      --card-bg: #334155;
+      --border-color: #475569;
+      --accent-primary: #38bdf8;
+      --accent-success: #4ade80;
+      --accent-warning: #facc15;
+      --accent-danger: #f87171;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .title-group h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-group p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .config-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background-color: var(--panel-bg);
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .config-bar label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .config-bar input[type="text"] {
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      width: 220px;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-online { background-color: rgba(74, 222, 128, 0.15); color: var(--accent-success); border: 1px solid var(--accent-success); }
+    .status-mock { background-color: rgba(250, 204, 21, 0.15); color: var(--accent-warning); border: 1px solid var(--accent-warning); }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-header {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .phase-card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .phase-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .phase-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      background-color: #475569;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+
+    .btn-get { background-color: #0284c7; }
+    .btn-post { background-color: #16a34a; }
+    .btn-put { background-color: #d97706; }
+    .btn-delete { background-color: #dc2626; }
+    .btn-scenario { background-color: #9333ea; }
+    .btn-switch { background-color: #eab308; color: black; font-weight: 700; padding: 6px 12px; margin-top: 8px; }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .response-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-status {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .status-2xx { background-color: rgba(74, 222, 128, 0.2); color: var(--accent-success); }
+    .status-4xx { background-color: rgba(248, 113, 113, 0.2); color: var(--accent-danger); }
+
+    pre {
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+      overflow-x: auto;
+      min-height: 200px;
+      max-height: 380px;
+    }
+
+    .explanation-box {
+      background-color: rgba(56, 189, 248, 0.1);
+      border-left: 4px solid var(--accent-primary);
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #e0f2fe;
+    }
+
+    .explanation-box strong {
+      color: var(--accent-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <h1>🏬 Fulfillment Service - Interactive API Lifecycle</h1>
+      <p>Execute complete microservice workflows: Stores, Warehouses, Hexagonal Use Cases, & Fulfillment Constraints.</p>
+    </div>
+    <div class="config-bar">
+      <div>
+        <label for="apiUrl">API Target URL:</label>
+        <input type="text" id="apiUrl" value="http://localhost:8080">
+      </div>
+      <div class="toggle-group">
+        <label><input type="checkbox" id="mockToggle" onchange="toggleMode()"> <strong>Use Simulator / Mock Mode</strong></label>
+      </div>
+      <div id="modeStatus" class="status-badge status-online">🟢 Live API Connected</div>
+    </div>
+  </header>
+
+  <div class="layout-grid">
+    <div class="panel">
+      <div class="panel-header">
+        <span>🚀 Lifecycle Execution Flow</span>
+        <button class="btn btn-scenario" onclick="runFullLifecycleDemo()">⚡ Run Full Auto-Demo</button>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-title">1️⃣ Initial System Discovery</div>
+        <div class="phase-desc">Inspect active stores, product catalog, and active warehouse units.</div>
+        <div class="btn-group">
+          <button class="btn btn-get" onclick="callApi('/store', 'GET')">GET /store</button>
+          <button class="btn btn-get" onclick="callApi('/product', 'GET')">GET /product</button>
+          <button class="btn btn-get" onclick="callApi('/warehouse', 'GET')">GET /warehouse</button>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-title">2️⃣ Store Creation & Post-Commit Sync</div>
+        <div class="phase-desc">Creates a store. Executes LegacyStoreManagerGateway AFTER DB transaction commit.</div>
+        <div class="btn-group">
+          <button class="btn btn-post" onclick="createStore()">POST /store (Create Store)</button>
+          <button class="btn btn-put" onclick="updateStore()">PUT /store/1 (Update Store)</button>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-title">3️⃣ Warehouse Hexagonal Operations</div>
+        <div class="phase-desc">Validates BU code, location max capacity & warehouse count constraints.</div>
+        <div class="btn-group">
+          <button class="btn btn-post" onclick="createWarehouse()">POST /warehouse (Create)</button>
+          <button class="btn btn-get" onclick="callApi('/warehouse/MWH.001', 'GET')">GET /warehouse/MWH.001</button>
+          <button class="btn btn-put" onclick="replaceWarehouse()">POST /warehouse/{code}/replacement</button>
+          <button class="btn btn-delete" onclick="archiveWarehouse()">DELETE /warehouse/1 (Archive)</button>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-title">4️⃣ Bonus Task: Fulfillment Unit Assignment Engine</div>
+        <div class="phase-desc">Associates Warehouses as fulfillment units for Stores with 3 domain constraints.</div>
+        <div class="btn-group">
+          <button class="btn btn-post" onclick="associateFulfillment()">POST /fulfillment (Associate)</button>
+          <button class="btn btn-get" onclick="callApi('/fulfillment', 'GET')">GET /fulfillment</button>
+          <button class="btn btn-scenario" onclick="triggerConstraintViolation()">⚠️ Trigger Constraint Violation (400)</button>
+          <button class="btn btn-delete" onclick="disassociateFulfillment()">DELETE /fulfillment</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header console-header">
+        <span>📋 Response Log & Context</span>
+        <div class="response-meta">
+          <span id="responseStatus" class="badge-status status-2xx">READY</span>
+          <span id="responseTime">0 ms</span>
+        </div>
+      </div>
+
+      <div class="explanation-box" id="explanationBox">
+        <strong>💡 Tip:</strong> If your Spring Boot server is not running on <code>http://localhost:8080</code> yet, check <strong>Use Simulator / Mock Mode</strong> at the top right to test all API responses instantly!
+      </div>
+
+      <pre id="jsonOutput">// Click any API button on the left to trigger the workflow execution.</pre>
+    </div>
+  </div>
+
+  <script>
+    let isMock = false;
+
+    function toggleMode() {
+      isMock = document.getElementById('mockToggle').checked;
+      const badge = document.getElementById('modeStatus');
+      if (isMock) {
+        badge.className = 'status-badge status-mock';
+        badge.innerHTML = '🟡 Simulator / Mock Mode Active';
+      } else {
+        badge.className = 'status-badge status-online';
+        badge.innerHTML = '🟢 Live API Mode';
+      }
+    }
+
+    function enableMockAndRetry() {
+      document.getElementById('mockToggle').checked = true;
+      toggleMode();
+      alert("Switched to Simulator / Mock Mode! Click any button again or run 'Full Auto-Demo'.");
+    }
+
+    async function callApi(endpoint, method, payload = null, explanation = "") {
+      const baseUrl = document.getElementById('apiUrl').value.replace(/\/$/, '');
+      const url = baseUrl + endpoint;
+      const startTime = performance.now();
+
+      document.getElementById('explanationBox').innerHTML = explanation || `<strong>Executing:</strong> ${method} ${endpoint}`;
+
+      if (isMock) {
+        const mockData = getMockResponse(endpoint, method, payload);
+        const duration = Math.round(performance.now() - startTime);
+        renderResponse(mockData.status, duration, mockData.body);
+        return;
+      }
+
+      try {
+        const options = {
+          method: method,
+          headers: { 'Content-Type': 'application/json' }
+        };
+        if (payload) options.body = JSON.stringify(payload);
+
+        const response = await fetch(url, options);
+        const duration = Math.round(performance.now() - startTime);
+        let body;
+        try {
+          body = await response.json();
+        } catch {
+          body = { message: "No Content (HTTP " + response.status + ")" };
+        }
+        renderResponse(response.status, duration, body);
+      } catch (err) {
+        const duration = Math.round(performance.now() - startTime);
+        document.getElementById('explanationBox').innerHTML = 
+          `<strong>⚠️ Local Connection Note:</strong> Could not connect to <code>${url}</code>. <br>` +
+          `<button class="btn btn-switch" onclick="enableMockAndRetry()">⚡ Click Here to Switch to Interactive Simulator Mode</button>`;
+        renderResponse(500, duration, {
+          error: "Failed to connect to " + url,
+          detail: "Backend server offline or loading via file:// origin.",
+          solution: "Click the yellow button above to enable 'Simulator Mode', or run './mvnw spring-boot:run' in your terminal!"
+        });
+      }
+    }
+
+    function renderResponse(status, duration, body) {
+      const statusBadge = document.getElementById('responseStatus');
+      statusBadge.innerText = status + " " + (status >= 200 && status < 300 ? "OK" : "RESPONSE");
+      statusBadge.className = "badge-status " + (status >= 200 && status < 300 ? "status-2xx" : "status-4xx");
+      document.getElementById('responseTime').innerText = duration + " ms";
+      document.getElementById('jsonOutput').innerText = JSON.stringify(body, null, 2);
+    }
+
+    function createStore() {
+      callApi('/store', 'POST', {
+        name: "AMSTERDAM-FLAGSHIP-" + Math.floor(Math.random() * 1000),
+        quantityProductsInStock: 250
+      }, "<strong>Store Post-Commit Hook:</strong> Creates store record in DB. On Spring <code>afterCommit()</code>, triggers <code>LegacyStoreManagerGateway</code> to sync with legacy filesystem.");
+    }
+
+    function updateStore() {
+      callApi('/store/1', 'PUT', {
+        name: "TONSTAD-RENOVATED",
+        quantityProductsInStock: 120
+      }, "<strong>Update Store:</strong> Updates store and registers post-commit legacy update handler.");
+    }
+
+    function createWarehouse() {
+      callApi('/warehouse', 'POST', {
+        businessUnitCode: "MWH." + Math.floor(Math.random() * 899 + 100),
+        location: "AMSTERDAM-001",
+        capacity: 40,
+        stock: 10
+      }, "<strong>Hexagonal Create Warehouse UseCase:</strong> Validates BU Code uniqueness, location valid identifier, stock <= capacity, and location max capacity limits.");
+    }
+
+    function replaceWarehouse() {
+      callApi('/warehouse/MWH.001/replacement', 'POST', {
+        location: "ZWOLLE-001",
+        capacity: 120,
+        stock: 10
+      }, "<strong>Replace Warehouse UseCase:</strong> Soft-archives previous warehouse (sets archivedAt), validates replacement capacity >= existing stock (10), and reuses BU Code 'MWH.001'.");
+    }
+
+    function archiveWarehouse() {
+      callApi('/warehouse/1', 'DELETE', null, "<strong>Archive Warehouse UseCase:</strong> Soft-archives warehouse 1 by populating the <code>archivedAt</code> timestamp, excluding it from active queries.");
+    }
+
+    function associateFulfillment() {
+      callApi('/fulfillment', 'POST', {
+        storeId: 1,
+        productId: 1,
+        warehouseBusinessUnitCode: "MWH.001"
+      }, "<strong>Fulfillment Unit Association:</strong> Links Warehouse MWH.001 to Product 1 at Store 1 after verifying all 3 business constraints.");
+    }
+
+    function triggerConstraintViolation() {
+      callApi('/fulfillment', 'POST', {
+        storeId: 1,
+        productId: 1,
+        warehouseBusinessUnitCode: "MWH.023"
+      }, "<strong>Constraint Engine Test:</strong> Tries to assign a 3rd warehouse to Product 1 at Store 1. The engine rejects this request with HTTP 400 Bad Request!");
+    }
+
+    function disassociateFulfillment() {
+      callApi('/fulfillment?storeId=1&productId=1&warehouseBusinessUnitCode=MWH.012', 'DELETE', null, "<strong>Disassociate:</strong> Removes fulfillment association link.");
+    }
+
+    async function runFullLifecycleDemo() {
+      document.getElementById('mockToggle').checked = true;
+      toggleMode();
+
+      alert("Starting Automated Full Lifecycle Demo Sequence!");
+      await callApi('/store', 'GET', null, "<strong>Step 1:</strong> List all stores");
+      await new Promise(r => setTimeout(r, 1500));
+      await createStore();
+      await new Promise(r => setTimeout(r, 1500));
+      await createWarehouse();
+      await new Promise(r => setTimeout(r, 1500));
+      await associateFulfillment();
+      await new Promise(r => setTimeout(r, 1500));
+      await triggerConstraintViolation();
+    }
+
+    function getMockResponse(endpoint, method, payload) {
+      if (endpoint === '/store' && method === 'GET') {
+        return { status: 200, body: [{ id: 1, name: "TONSTAD", quantityProductsInStock: 10 }, { id: 2, name: "KALLAX", quantityProductsInStock: 5 }] };
+      }
+      if (endpoint === '/store' && method === 'POST') {
+        return { status: 201, body: { id: 4, name: payload.name, quantityProductsInStock: payload.quantityProductsInStock, _meta: "Legacy Store Sync Triggered Post-Commit!" } };
+      }
+      if (endpoint === '/warehouse' && method === 'POST') {
+        return { status: 201, body: { businessUnitCode: payload.businessUnitCode, location: payload.location, capacity: payload.capacity, stock: payload.stock } };
+      }
+      if (endpoint.includes('/replacement')) {
+        return { status: 200, body: { businessUnitCode: "MWH.001", location: payload.location, capacity: payload.capacity, stock: 10, _history: "Old warehouse soft-archived at " + new Date().toISOString() } };
+      }
+      if (endpoint === '/fulfillment' && method === 'POST' && payload.warehouseBusinessUnitCode === 'MWH.023') {
+        return { status: 400, body: { error: "Constraint violation: Product 1 is already fulfilled by 2 warehouses for Store 1" } };
+      }
+      if (endpoint === '/fulfillment' && method === 'POST') {
+        return { status: 201, body: { id: 10, storeId: payload.storeId, productId: payload.productId, warehouseBusinessUnitCode: payload.warehouseBusinessUnitCode, createdAt: new Date().toISOString() } };
+      }
+      return { status: 200, body: { message: "Mock Response for " + method + " " + endpoint } };
+    }
+  </script>
+</body>
+</html>
