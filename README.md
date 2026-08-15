@@ -1,5 +1,6 @@
 # Warehouse Colocation & Fulfillment Service (Spring Boot 3)
 
+
 This repository contains the complete implementation for the Warehouse Colocation & Fulfillment Microservice built with **Java 17, Spring Boot 3, Spring Web MVC, Spring Data JPA, Spring Transaction Management, PostgreSQL, Docker, AWS Free Tier deployment, and GitHub Actions CI/CD**.
 
 ## Deliverables & Architecture
