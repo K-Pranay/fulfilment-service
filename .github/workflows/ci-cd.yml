@@ -1,23 +1,24 @@
 # Name of the GitHub Actions workflow - displayed in the Actions tab on GitHub
-name: CI/CD Pipeline - Spring Boot ECom
+name: CI/CD Pipeline - ECom Fulfilment
 
 # "on:" defines when this workflow is triggered
 on:
-  # Trigger when code is pushed directly to these branches
   push:
     branches: [ main, master ]
-  # Trigger when a Pull Request is created/updated to these branches
   pull_request:
     branches: [ main, master ]
 
 jobs:
   # ============================================================================
   # JOB 1: BUILD AND TEST
-  # This job compiles the Java code, runs Spring Boot tests, and creates a deployable package
+  # Compiles Java code, runs unit & integration tests, packages JAR
   # ============================================================================
   build-and-test:
-    name: Build & Run Unit/Integration Tests (Spring Boot)
+    name: Build & Run Unit/Integration Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: java-assignment
 
     steps:
       - name: Checkout Code
@@ -34,11 +35,11 @@ jobs:
         run: chmod +x mvnw
 
       # Run all unit and integration tests using Spring Boot test suite
-      - name: Run Spring Boot Tests
+      - name: Run Maven Tests
         run: ./mvnw clean test
 
-      # Package executable Spring Boot jar
-      - name: Build Spring Boot Package
+      # Package executable jar
+      - name: Build Package
         run: ./mvnw clean package -DskipTests
 
       # Save the compiled executable JAR file for deployment
@@ -46,48 +47,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fulfilment-service-jar
-          path: target/*.jar
-
-  # ============================================================================
-  # JOB 2: DEPLOY TO AWS
-  # This job packages the app into Docker, pushes to AWS, and deploys it
-  # Only runs AFTER build-and-test succeeds
-  # ============================================================================
-  deploy-to-aws:
-    name: Deploy to AWS Free Tier (App Runner / ECS)
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Log in to Amazon ECR Public
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-
-      - name: Build, Tag, and Push Spring Boot Docker Image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REGISTRY_ALIAS: ${{ secrets.AWS_ECR_ALIAS }}
-          REPOSITORY: fulfilment-service
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
-
-      - name: Deploy to AWS App Runner
-        run: |
-          echo "Triggering AWS App Runner / ECS deployment..."
-          aws apprunner start-deployment --service-arn ${{ secrets.AWS_APP_RUNNER_ARN }} || echo "App Runner deployment triggered"
+          path: java-assignment/target/*.jar

@@ -1,40 +1,28 @@
-# Warehouse Colocation & Fulfillment Service (Spring Boot 3)
+## About the assignment
 
+You will find the tasks of this assignment on [CODE_ASSIGNMENT](java-assignment/CODE_ASSIGNMENT.md) file
 
-This repository contains the complete implementation for the Warehouse Colocation & Fulfillment Microservice built with **Java 17, Spring Boot 3, Spring Web MVC, Spring Data JPA, Spring Transaction Management, PostgreSQL, Docker, AWS Free Tier deployment, and GitHub Actions CI/CD**.
+## Case Study
 
-## Deliverables & Architecture
+You will find the case study briefing and scenarios in the `case-study/` directory:
+- [BRIEFING.md](case-study/BRIEFING.md)
+- [CASE_STUDY.md](case-study/CASE_STUDY.md)
 
-- `fulfilment-service/`: Complete, self-contained, AWS-ready Spring Boot 3 codebase.
-- `QUESTIONS.md`: Answers to technical questions on Database Access Patterns, OpenAPI vs Code-First API design, and Testing Strategies.
-- `CASE_STUDY.md`: Detailed strategic answers for all 5 business case study scenarios (Cost Allocation, Cost Optimization, Financial System Integration, Budgeting/Forecasting, Warehouse Replacement).
-- `.github/workflows/ci-cd.yml`: Automated GitHub Actions pipeline.
-- `Dockerfile` & `docker-compose.yml`: Container configuration for production & local development.
-- `aws/`: AWS App Runner and ECS Fargate deployment specs for AWS Free Tier.
+## Java Code Assignment
 
-## Building and Running
+You will find the Java code implementation and questions in the `java-assignment/` directory:
+- [java-assignment/README.md](java-assignment/README.md)
+- [java-assignment/QUESTIONS.md](java-assignment/QUESTIONS.md)
+- [java-assignment/CODE_ASSIGNMENT.md](java-assignment/CODE_ASSIGNMENT.md)
 
-### Prerequisites
-- JDK 17+
-- Maven 3.8+ or `./mvnw`
-- Docker (optional)
-
-### Build and Test
+### Quick Start
+To build and run tests:
 ```bash
+cd java-assignment
 ./mvnw clean test
 ```
-
-### Run Application Locally
+To run the service locally:
 ```bash
+cd java-assignment
 ./mvnw spring-boot:run
 ```
-Navigate to Swagger UI: http://localhost:8080/swagger-ui.html
-
-### Run via Docker Compose
-```bash
-docker-compose up --build
-```
-
-## Submission & Portfolio Link
-
-Refer to [PORTFOLIO.md](PORTFOLIO.md) for full architecture diagrams, API documentation, and presentation formatting.
